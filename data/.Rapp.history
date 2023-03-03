@@ -1,0 +1,2 @@
+load("/Users/loganpearce/Desktop/git/sentiment-analysis/data/sentiment_data.rds")
+load("/Users/loganpearce/Desktop/git/sentiment-analysis/data/sentiment_data 4.30.24 PM.rds")
