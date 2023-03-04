@@ -26,11 +26,14 @@ sentiment_analysis <- rds_data %>%
 sentiment_company <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
+# find the 5 best and worst performing companies and apply a log scale
 worst_company_scores <- sentiment_company %>%
   group_by(company) %>%
   summarize(sentiment_score = sum(value)) %>%
   arrange(sentiment_score) %>%
   head(n = 5)
+
+worst_company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
 
 best_company_scores <- sentiment_company %>%
   group_by(company) %>%
@@ -38,14 +41,13 @@ best_company_scores <- sentiment_company %>%
   arrange(sentiment_score) %>%
   tail(n = 5)
 
+best_company_scores$log_company_score <- log(abs(best_company_scores$sentiment_score))
+
 any(duplicated(worst_company_scores$company)) #test if all company entries are unique
 any(duplicated(best_company_scores$company))  #test if all company entries are unique
 
-#create log score to compare between 5 best and 5 worst performing companies
-worst_company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
-
-best_company_scores$log_company_score <- log(abs(best_company_scores$sentiment_score))
-
+# find the sentiment values for every month for time series use later
+#afinn
 sentiment_month <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
@@ -112,6 +114,7 @@ sentiment_company_by_state_scores <- sentiment_company %>%
   mutate(month = if_else(month == "12", "Dec",month)) 
 
 sentiment_company_by_state_scores$logStateScore <- log(abs(sentiment_company_by_state_scores$sentimentScore))
+
 #shinyApp
 column_names<-colnames(sentiment_company_by_state_scores) #for input selections
 ui<-fluidPage( 
