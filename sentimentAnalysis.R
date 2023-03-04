@@ -96,7 +96,7 @@ sentiment_company_by_state <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
 sentiment_company_by_state_scores <- sentiment_company %>%
-  group_by(state, month) %>%
+  group_by(state, company,month) %>%
   summarize(sentimentScore = sum(value)) %>%
   mutate(month = if_else(month == "01", "Jan",month)) %>%
   mutate(month = if_else(month == "02", "Feb",month)) %>%
@@ -131,8 +131,8 @@ ui<-fluidPage(
     column(12,DT::dataTableOutput("table_01")),
     column(12,plotOutput('plot_02')),
     column(12,plotOutput('plot_03')),
-    column(6,plotOutput('plot_04')),
-    column(6,plotOutput('plot_05'))
+    column(12,plotOutput('plot_04')),
+    column(12,plotOutput('plot_05'))
   )
   
   
@@ -142,7 +142,7 @@ server<-function(input,output){
   output$plot_01 <- renderPlot({
     ggplot(sentiment_company_by_state_scores, aes_string(x = input$X, y = input$Y)) +
       geom_col() +
-      labs(title = "Financial Institutions Number of Complaints by Month")
+      labs(title = "Financial Institutions Performance by Month and State")
   })
   output$plot_02 <- renderPlot({
     consumer_sentiment %>%
