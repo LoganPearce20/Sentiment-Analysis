@@ -2,7 +2,7 @@
 ## Introduction
 I have analyzed a dataset of numerous consumer narratives surrounding various financial institutions in the United States.  The goal is for any company / person in the US to be able to use this analysis to determine which banks are best for them and their banking needs.
 
-## Dictionary 📖
+## Dictionary 
 1) dateRecieved: The date the company received the consumers narrative.
 2) product: The specific aspect of the company that the narrative surrounded.
 3) issue: Reason for the consumer narrative.
@@ -10,7 +10,7 @@ I have analyzed a dataset of numerous consumer narratives surrounding various fi
 5) company: Financial institution in question.
 6) state: State where consumer narrative was filed.
 
-## Data Cleaning 🧹
+## Data Cleaning 
 1) Reading the file
 * Since the file was 255 MB I converted it into an RDS
 ```r
