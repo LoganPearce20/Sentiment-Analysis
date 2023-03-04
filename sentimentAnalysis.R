@@ -30,13 +30,13 @@ worst_company_scores <- sentiment_company %>%
   group_by(company) %>%
   summarize(sentiment_score = sum(value)) %>%
   arrange(sentiment_score) %>%
-  head(n = 5)
+  head(n = 10)
 
 best_company_scores <- sentiment_company %>%
   group_by(company) %>%
   summarize(sentiment_score = sum(value)) %>%
   arrange(sentiment_score) %>%
-  tail(n = 5)
+  tail(n = 10)
 
 any(duplicated(worst_company_scores$company)) #test if all company entries are unique
 any(duplicated(best_company_scores$company))  #test if all company entries are unique
