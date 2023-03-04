@@ -27,24 +27,14 @@ sentiment_company <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
 # find the 5 best and worst performing companies and apply a log scale
-worst_company_scores <- sentiment_company %>%
+company_scores <- sentiment_company %>%
   group_by(company) %>%
   summarize(sentiment_score = sum(value)) %>%
-  arrange(sentiment_score) %>%
-  head(n = 5)
+  arrange(sentiment_score)
 
-worst_company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
+company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
 
-best_company_scores <- sentiment_company %>%
-  group_by(company) %>%
-  summarize(sentiment_score = sum(value)) %>%
-  arrange(sentiment_score) %>%
-  tail(n = 5)
-
-best_company_scores$log_company_score <- log(abs(best_company_scores$sentiment_score))
-
-any(duplicated(worst_company_scores$company)) #test if all company entries are unique
-any(duplicated(best_company_scores$company))  #test if all company entries are unique
+any(duplicated(company_scores$company)) #test if all company entries are unique
 
 # find the sentiment values for every month for time series use later
 #afinn
@@ -134,8 +124,8 @@ ui<-fluidPage(
     column(12,DT::dataTableOutput("table_01")),
     column(12,plotOutput('plot_02')),
     column(12,plotOutput('plot_03')),
-    column(12,plotOutput('plot_04')),
-    column(12,plotOutput('plot_05'))
+    column(12,DT::dataTableOutput('table_02')),
+    column(12,DT::dataTableOutput('table_03'))
   )
   
   
@@ -159,18 +149,8 @@ server<-function(input,output){
       scale_x_discrete(limits = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
       labs(y = "Number of Issues", x = "Month", color = "Log Sentiment Score", title = "Severity of Issues by Month")
   })
-  output$plot_04 <- renderPlot ({
-    ggplot(worst_company_scores) +
-      geom_col(show.legend = FALSE, mapping = aes(x = company, y = log_company_score, fill = company)) +
-      labs(y = "Log Sentiment Value", x = "Company", color = "Company", title = "Worst Performing Institutions")
-  })
-  output$plot_05 <- renderPlot ({
-    ggplot(best_company_scores) +
-      geom_col(show.legend = FALSE, mapping = aes(x = company, y = log_company_score, fill = company)) +
-      labs(y = "Log Sentiment Value", x = "Company", color = "Company", title = "Best Performing Institutions")
-  })
   output$table_01<-DT::renderDataTable(sentiment_company_by_state_scores[,c(input$X,input$Y,input$Splitby)],options = list(pageLength = 4))
+  output$table_02<-DT::renderDataTable(company_scores[,c("company","sentiment_score")],options = list(pageLength = 5))
 }
-
 shinyApp(ui=ui, server=server)
 
