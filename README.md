@@ -3,8 +3,8 @@
 I have analyzed a dataset of numerous consumer narratives surrounding various financial institutions in the United States.  The goal is for any company / person in the US to be able to use this analysis to determine which banks are best for them and their banking needs.
 
 ## R Script Directory
-cleaning the data - sentimentQuery.r
-analyzing the data - sentimentAnalysis.r
+1) cleaning the data - sentimentQuery.r
+2) analyzing the data - sentimentAnalysis.r
 
 ## Dictionary 
 1) dateRecieved: The date the company received the consumers narrative.
