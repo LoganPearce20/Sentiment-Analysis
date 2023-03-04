@@ -95,7 +95,7 @@ write_rds(clean_rds_data, "data/clean data/clean_rds_data.rds")
 | TransUnion Intermediate Holding, Inc.| -24029|
 | Wells Fargo and Company| -23256|
 
-## Code for ggplots and tables (found in sentimentAnalysis.r)
+## Code for ggplots and tables (complete code found in sentimentAnalysis.r)
 
 1) Companies Performance by State
 
