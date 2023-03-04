@@ -5,6 +5,7 @@ library(sentimentr)
 library(wordcloud)
 library(dplyr)
 library(tidytext)
+library(shiny)
 
 rm(list = ls())
 

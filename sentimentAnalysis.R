@@ -6,6 +6,8 @@ library(wordcloud)
 library(dplyr)
 library(tidytext)
 library(DT)
+library(shiny)
+library(textdata)
 
 rm(list = ls())
 
@@ -26,13 +28,13 @@ sentiment_analysis <- rds_data %>%
 sentiment_company <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
-# find the 5 best and worst performing companies and apply a log scale
+# compare every companies total sentiment rating to one another (with log scale)
 company_scores <- sentiment_company %>%
   group_by(company) %>%
   summarize(sentiment_score = sum(value)) %>%
   arrange(sentiment_score)
 
-company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
+company_scores$log_company_score <- log(abs(company_scores$sentiment_score))
 
 any(duplicated(company_scores$company)) #test if all company entries are unique
 
@@ -111,6 +113,7 @@ ui<-fluidPage(
   
   titlePanel(title = "Sentiment Analysis of Financial Institutions"),
   h4('Financial Institions Performance'),
+  #textInput('company', 'Enter a Company'),
   
   fluidRow(
     column(2,
@@ -149,8 +152,15 @@ server<-function(input,output){
       scale_x_discrete(limits = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
       labs(y = "Number of Issues", x = "Month", color = "Log Sentiment Score", title = "Severity of Issues by Month")
   })
-  output$table_01<-DT::renderDataTable(sentiment_company_by_state_scores[,c(input$X,input$Y,input$Splitby)],options = list(pageLength = 4))
-  output$table_02<-DT::renderDataTable(company_scores[,c("company","sentiment_score")],options = list(pageLength = 5))
+  output$table_01<-DT::renderDataTable(sentiment_company_by_state_scores[,c(input$X,input$Y,input$Splitby)],options = list(pageLength = 4),
+                                       callback = JS(
+                                         "table.on( 'search.dt', function () {",
+                                         "Shiny.setInputValue( 'search', table.search() );",
+                                         "} );"))
+  output$table_02<-DT::renderDataTable(company_scores[,c("company","sentiment_score")],options = list(pageLength = 5), callback = JS(
+    "table.on( 'search.dt', function () {",
+    "Shiny.setInputValue( 'search', table.search() );",
+    "} );"
+  ))
 }
 shinyApp(ui=ui, server=server)
-
