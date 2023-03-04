@@ -7,7 +7,8 @@ I have analyzed a dataset of numerous consumer narratives surrounding various fi
 3) issue: Reason for the consumer narrative.
 4) consumerComplaintNarrative: Consumers own words on what went wrong.
 5) company: Financial institution in question.
-6) state: State where consumer narrative was filed.
+6) state: State where consumer narrative was filed.<img width="835" alt="image" src="https://user-images.githubusercontent.com/112974521/222873253-e2a0d4bc-fcd4-4574-96fd-fb95eb24c20d.png">
+
 ## Data Cleaning 🧹
 1) Reading the file
 * Since the file was 255 MB I converted it into an RDS
@@ -56,4 +57,34 @@ write_rds(clean_rds_data, "data/clean data/clean_rds_data.rds")
 ## Data Analysis
 1) Companies Performance by State
 * To chart this I used the afinn sentiment database and summed all of the scores together and applied a log scale to the sum of each companies score in every state
-<img src="desktop/git/sentiment-analysis/Plots/Financial Institutions Performance by State" alt="Financial Institutions Performance by State" width="600" height="300">
+* We can see that the states with the worst sentiment ratings for their financial institutions are CA, IL, TX, NY, FL, GA
+<img src="Plots/Financial Institutions Performance by State.png" alt="Financial Institutions Performance by State" width="1600" height="300">
+
+2) Companies Performance by Month
+* To chart this I used the afinn sentiment database and summed all of the scores together and applied a log scale to the sum of each companies score during every month
+<img src="Plots/Financial Institutions Performance by Month.png" alt="Financial Institutions Performance by Month" width="1600" height="300">
+```r
+sentiment_analysis <- rds_data %>%
+  unnest_tokens(word, issue)
+
+sentiment_company_by_state <- sentiment_analysis %>%
+  inner_join(get_sentiments("afinn"))
+  
+sentiment_company_by_state_scores <- sentiment_company %>%
+  group_by(state, company, month) %>%
+  summarize(sentimentScore = sum(value)) %>%
+  mutate(month = if_else(month == "01", "Jan",month)) %>%
+  mutate(month = if_else(month == "02", "Feb",month)) %>%
+  mutate(month = if_else(month == "03", "Mar",month)) %>%
+  mutate(month = if_else(month == "04", "Apr",month)) %>%
+  mutate(month = if_else(month == "05", "May",month)) %>%
+  mutate(month = if_else(month == "06", "Jun",month)) %>%
+  mutate(month = if_else(month == "07", "Jul",month)) %>%
+  mutate(month = if_else(month == "08", "Aug",month)) %>%
+  mutate(month = if_else(month == "09", "Sep",month)) %>%
+  mutate(month = if_else(month == "10", "Oct",month)) %>%
+  mutate(month = if_else(month == "11", "Nov",month)) %>%
+  mutate(month = if_else(month == "12", "Dec",month)) 
+
+sentiment_company_by_state_scores$logStateScore <- log(abs(sentiment_company_by_state_scores$sentimentScore))
+```
