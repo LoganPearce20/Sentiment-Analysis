@@ -143,7 +143,7 @@ server<-function(input,output){
   output$plot_01 <- renderPlot({
     ggplot(sentiment_company_by_state_scores, aes_string(x = input$X, y = input$Y)) +
       geom_col() +
-      labs(title = "Financial Institutions Performance by Month")
+      labs(title = "Financial Institutions Performance by State and Month")
   })
   output$plot_02 <- renderPlot({
     consumer_sentiment %>%
