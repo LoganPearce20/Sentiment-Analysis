@@ -56,35 +56,15 @@ write_rds(clean_rds_data, "data/clean data/clean_rds_data.rds")
 ```
 ## Data Analysis
 1) Companies Performance by State
-* To chart this I used the afinn sentiment database and summed all of the scores together and applied a log scale to the sum of each companies score in every state
-* We can see that the states with the worst sentiment ratings for their financial institutions are CA, IL, TX, NY, FL, GA
 <img src="Plots/Financial Institutions Performance by State.png" alt="Financial Institutions Performance by State" width="1600" height="300">
 
+* To chart this I used the afinn sentiment database and summed all of the scores together and applied a log scale to the sum of each companies score in every state
+* We can see that the states with the worst sentiment ratings for their financial institutions are CA, IL, TX, NY, FL, GA
+
 2) Companies Performance by Month
-* To chart this I used the afinn sentiment database and summed all of the scores together and applied a log scale to the sum of each companies score during every month
-<img src="Plots/Financial Institutions Performance by Month.png" alt="Financial Institutions Performance by Month" width="1600" height="300">
-```r
-sentiment_analysis <- rds_data %>%
-  unnest_tokens(word, issue)
+<img src="Plots/Severity of Issues by Month.png" alt="Financial Institutions Performance by Month" width="1600" height="300">
 
-sentiment_company_by_state <- sentiment_analysis %>%
-  inner_join(get_sentiments("afinn"))
-  
-sentiment_company_by_state_scores <- sentiment_company %>%
-  group_by(state, company, month) %>%
-  summarize(sentimentScore = sum(value)) %>%
-  mutate(month = if_else(month == "01", "Jan",month)) %>%
-  mutate(month = if_else(month == "02", "Feb",month)) %>%
-  mutate(month = if_else(month == "03", "Mar",month)) %>%
-  mutate(month = if_else(month == "04", "Apr",month)) %>%
-  mutate(month = if_else(month == "05", "May",month)) %>%
-  mutate(month = if_else(month == "06", "Jun",month)) %>%
-  mutate(month = if_else(month == "07", "Jul",month)) %>%
-  mutate(month = if_else(month == "08", "Aug",month)) %>%
-  mutate(month = if_else(month == "09", "Sep",month)) %>%
-  mutate(month = if_else(month == "10", "Oct",month)) %>%
-  mutate(month = if_else(month == "11", "Nov",month)) %>%
-  mutate(month = if_else(month == "12", "Dec",month)) 
-
-sentiment_company_by_state_scores$logStateScore <- log(abs(sentiment_company_by_state_scores$sentimentScore))
-```
+* To chart this I took the total amount of complaints received in each month to create the initial bar chart.  To color each bar chart I then used the afinn database to get a sentiment score and colored each bar chart in based on the severity of its sentiment
+* July, August, September, and October have the most total consumer narratives
+* March, May, and June have the most negative consumer narratives
+* April, August, September, and October have the least negative consumer narratives
