@@ -32,22 +32,20 @@ rds_data <- rds_data %>%
   rename(tags = Tags)
 
 #in order to run my querys faster
-df_subset <- tail(rds_data, 50000)
+#df_subset <- tail(rds_data, 50000)
 
 #Replace blanks with NA
-#rds_data[rds_data == ""] <- NA
-df_subset[df_subset == ""] <- NA
+rds_data[rds_data == ""] <- NA
+#df_subset[df_subset == ""] <- NA
 
 #remove all instances of X
-#rds_data <- rds_data %>%
-  #mutate(consumerComplaintNarrative = gsub("X", "", consumerComplaintNarrative))
-df_subset <- df_subset %>%
+rds_data <- rds_data %>%
   mutate(consumerComplaintNarrative = gsub("X", "", consumerComplaintNarrative))
+#df_subset <- df_subset %>%
+ # mutate(consumerComplaintNarrative = gsub("X", "", consumerComplaintNarrative))
 
 #select columns for sentiment analysis
-clean_rds_data <- df_subset %>% #rds_data %>%
-  select(dateRecieved, product, subProduct, issue, subIssue, consumerComplaintNarrative, 
-         companyPublicResponse, company, state, dateSentToCompany, companyResponseToConsumer, 
-         timelyResponse, consumerDisputed)
+clean_rds_data <- rds_data %>%
+  select(dateRecieved, product, issue, consumerComplaintNarrative, company, state)
 
 write_rds(clean_rds_data, "data/clean data/clean_rds_data.rds")

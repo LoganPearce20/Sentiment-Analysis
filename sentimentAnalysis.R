@@ -26,13 +26,25 @@ sentiment_analysis <- rds_data %>%
 sentiment_company <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
 
-sentiment_company_scores <- sentiment_company %>%
+worst_company_scores <- sentiment_company %>%
   group_by(company) %>%
-  summarize(sentiment_score = sum(value))
+  summarize(sentiment_score = sum(value)) %>%
+  arrange(sentiment_score) %>%
+  head(n = 5)
 
-any(duplicated(sentiment_company_scores$company)) #test if all company entries are unique
+best_company_scores <- sentiment_company %>%
+  group_by(company) %>%
+  summarize(sentiment_score = sum(value)) %>%
+  arrange(sentiment_score) %>%
+  tail(n = 5)
 
-sentiment_company_scores$log_company_score <- log(abs(sentiment_company_scores$sentiment_score))
+any(duplicated(worst_company_scores$company)) #test if all company entries are unique
+any(duplicated(best_company_scores$company))  #test if all company entries are unique
+
+#create log score to compare between 5 best and 5 worst performing companies
+worst_company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
+
+best_company_scores$log_company_score <- log(abs(best_company_scores$sentiment_score))
 
 sentiment_month <- sentiment_analysis %>%
   inner_join(get_sentiments("afinn"))
@@ -57,9 +69,6 @@ consumer_sentiment <- sentiment_analysis %>%
   pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
   mutate(sentiment = negative)
 
-ggplot(consumer_sentiment, aes(word, sentiment, fill = word)) +
-  geom_col(show.legend = FALSE) +
-  labs(x = "Word", y = "Use of Word", title = "Angry Sentiments")
 
 #Time-series for company performance by month
 issues_by_month <- rds_data %>%
@@ -78,17 +87,6 @@ issues_by_month <- rds_data %>%
   mutate(month = if_else(month == "12", "Dec",month)) %>%
   group_by(month) %>%
   summarise(numIssues = length(month))
-
-ggplot(issues_by_month) +
-  geom_point(mapping = aes(x = month, y = numIssues, color = sentiment_month_scores$log_month_score)) +
-  scale_x_discrete(limits = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
-  labs(y = "Number of Issues", x = "Month", color = "Log Sentiment Score", title = "Log Sentiment Scores by Month")
-
-#Word cloud analysis
-sentiment_analysis %>%
-  anti_join(stop_words) %>%
-  count(word) %>%
-  with(wordcloud(word, n, max.words = 50))
 
 # Company performance by state for shiny app
 sentiment_analysis <- rds_data %>%
@@ -120,20 +118,22 @@ column_names<-colnames(sentiment_company_by_state_scores) #for input selections
 ui<-fluidPage( 
   
   titlePanel(title = "Sentiment Analysis of Financial Institutions"),
-  h4('Financial Institions Performance by State & Month'),
+  h4('Financial Institions Performance'),
   
   fluidRow(
     column(2,
            selectInput('X', 'Choose State or Month',column_names,column_names[3])),
     column(4,
-           selectInput('Y', 'Choose Log Score or Summed Score',column_names,column_names[5])),
+           selectInput('Y', 'Choose Summed Log Score or Summed Regular Score',column_names,column_names[5])),
     column(6,
            selectInput('Splitby', 'Split By', column_names,column_names[2]))
     ),
     column(12,plotOutput('plot_01')),
     column(12,DT::dataTableOutput("table_01")),
     column(12,plotOutput('plot_02')),
-    column(12,plotOutput('plot_03'))
+    column(12,plotOutput('plot_03')),
+    column(6,plotOutput('plot_04')),
+    column(6,plotOutput('plot_05'))
   )
   
   
@@ -143,19 +143,29 @@ server<-function(input,output){
   output$plot_01 <- renderPlot({
     ggplot(sentiment_company_by_state_scores, aes_string(x = input$X, y = input$Y)) +
       geom_col() +
-      geom_smooth() 
+      labs(title = "Financial Institutions Performance by Month")
   })
   output$plot_02 <- renderPlot({
-    sentiment_analysis %>%
+    consumer_sentiment %>%
       anti_join(stop_words) %>%
       count(word) %>%
-      with(wordcloud(word, n, max.words = 50))
+      with(wordcloud(word, n, max.words = 25, scale = c(1.75, 0.1)))
   })
   output$plot_03 <- renderPlot ({
     ggplot(issues_by_month) +
-      geom_point(mapping = aes(x = month, y = numIssues, color = sentiment_month_scores$log_month_score)) +
+      geom_col(mapping = aes(x = month, y = numIssues, fill = sentiment_month_scores$log_month_score)) +
       scale_x_discrete(limits = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
       labs(y = "Number of Issues", x = "Month", color = "Log Sentiment Score", title = "Severity of Issues by Month")
+  })
+  output$plot_04 <- renderPlot ({
+    ggplot(worst_company_scores) +
+      geom_col(show.legend = FALSE, mapping = aes(x = company, y = log_company_score, fill = company)) +
+      labs(y = "Log Sentiment Value", x = "Company", color = "Company", title = "Worst Performing Institutions")
+  })
+  output$plot_05 <- renderPlot ({
+    ggplot(best_company_scores) +
+      geom_col(show.legend = FALSE, mapping = aes(x = company, y = log_company_score, fill = company)) +
+      labs(y = "Log Sentiment Value", x = "Company", color = "Company", title = "Best Performing Institutions")
   })
   output$table_01<-DT::renderDataTable(sentiment_company_by_state_scores[,c(input$X,input$Y,input$Splitby)],options = list(pageLength = 4))
 }
