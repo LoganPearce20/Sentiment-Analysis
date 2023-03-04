@@ -77,7 +77,7 @@ write_rds(clean_rds_data, "data/clean data/clean_rds_data.rds")
 3) Word Cloud
 <img src="Plots/WordCloud.png" alt="Financial Institutions Performance by Month" width="600" height="300">
 
-* The general sentiment surrounding these financial institutions performance is overall negative with words like "haphazard", "craziness","faltered", and "loathing", etc. occuring at a significant rate
+* The general sentiment surrounding these financial institutions performance is overall negative with words like "degradation", "unforgiving","shocking", and "oppress", "disparage" etc. occuring at a significant rate
 
 4A) Company Comparison Table (Best Performing Financial Institutions)
 
