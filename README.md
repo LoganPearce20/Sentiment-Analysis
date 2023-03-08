@@ -145,6 +145,9 @@ company_scores <- sentiment_company %>%
 company_scores$log_company_score <- log(abs(worst_company_scores$sentiment_score))
 ```
 
+## Shiny App
+* Found in sentimentAnalysis.R 
+
 ## Conclusion
 1) There is an overall negative sentiment towards these financial institutions
 2) CA, TX, FL, AL, IL, GA, NY are the overall worst performing states in terms of consumer sentiment
